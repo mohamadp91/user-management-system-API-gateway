@@ -5,78 +5,82 @@ import com.example.usermanagementsystemAPIgateway.model.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.codec.ClientCodecConfigurer;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeFunction;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilderFactory;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
 
 @RestController
 public class APIController {
 
-    @Autowired
-    private RestTemplate restTemplate;
 
     HttpHeaders headers = new HttpHeaders();
 
     @Value("${user-management-system.url}")
     private String url;
 
+    @Autowired
+    WebClient webClient;
+
     @CrossOrigin
     @PostMapping(value = "/users")
-    public ResponseEntity<UserModel> addUser(@RequestBody UserModel user) {
+    public Mono<UserModel> addUser(@RequestBody UserModel user) {
 
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<UserModel> entity = new HttpEntity<UserModel>(user,headers);
-
-        return restTemplate.exchange(
-                url + "/users",
-                HttpMethod.POST,
-                entity,
-                UserModel.class);
-
+        return webClient
+                .post()
+                .uri(url + "/users")
+                .header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE)
+                .body(Mono.just(user),UserModel.class)
+                .retrieve()
+                .bodyToMono(UserModel.class);
     }
 
     @CrossOrigin
     @GetMapping("/users/{id}")
-    public ResponseEntity<UserModel> getUser(@PathVariable long id) {
+    public Mono<UserModel> getUser(@PathVariable long id) {
 
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<UserModel> entity = new HttpEntity<UserModel>(headers);
-
-        return restTemplate.exchange(
-                url + "/users/" + id,
-                HttpMethod.GET,
-                entity,
-                UserModel.class);
-
+        return webClient
+                .get()
+                .uri(url + "/users/" + id)
+                .header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE)
+                .retrieve()
+                .bodyToMono(UserModel.class);
     }
 
     @CrossOrigin
     @GetMapping("/users")
-    public ResponseEntity<String> getUsers() {
+    public Flux<UserModel> getUsers() {
 
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<UserModel> entity = new HttpEntity<UserModel>(headers);
-
-        return restTemplate.exchange(
-                url + "/users",
-                HttpMethod.GET,
-                entity,
-                String.class);
+        return webClient
+                .get()
+                .uri(url +"/users")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .retrieve()
+                .bodyToFlux(UserModel.class);
     }
 
     @CrossOrigin
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<UserModel> deleteUser(@PathVariable long id) {
+    public Mono<UserModel> deleteUser(@PathVariable long id) {
 
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<UserModel> entity = new HttpEntity<UserModel>(headers);
-
-        return restTemplate.exchange(
-                url + "/users/" + id,
-                HttpMethod.DELETE,
-                entity,
-                UserModel.class);
+        return  webClient
+                .delete()
+                .uri(url + "/users/" + id)
+                .header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE)
+                .retrieve()
+                .bodyToMono(UserModel.class);
     }
 
 }
