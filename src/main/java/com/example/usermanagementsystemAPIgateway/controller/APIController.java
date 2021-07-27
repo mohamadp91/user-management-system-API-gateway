@@ -3,60 +3,52 @@ package com.example.usermanagementsystemAPIgateway.controller;
 
 import com.example.usermanagementsystemAPIgateway.model.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.codec.ClientCodecConfigurer;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.ExchangeFunction;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilderFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 
 @RestController
 public class APIController {
 
-
-    HttpHeaders headers = new HttpHeaders();
-
     @Value("${user-management-system.url}")
     private String url;
 
+    @Qualifier("getWebClient")
     @Autowired
-    WebClient webClient;
+    WebClient.Builder webClient;
 
     @CrossOrigin
     @PostMapping(value = "/users")
-    public Mono<UserModel> addUser(@RequestBody UserModel user) {
+    public UserModel addUser(@RequestBody UserModel user) {
 
         return webClient
+                .build()
                 .post()
                 .uri(url + "/users")
                 .header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE)
                 .body(Mono.just(user),UserModel.class)
                 .retrieve()
-                .bodyToMono(UserModel.class);
+                .bodyToMono(UserModel.class)
+                .block();
     }
 
     @CrossOrigin
     @GetMapping("/users/{id}")
-    public Mono<UserModel> getUser(@PathVariable long id) {
+    public UserModel getUser(@PathVariable long id) {
 
         return webClient
+                .build()
                 .get()
                 .uri(url + "/users/" + id)
                 .header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .bodyToMono(UserModel.class);
+                .bodyToMono(UserModel.class)
+                .block();
     }
 
     @CrossOrigin
@@ -64,6 +56,7 @@ public class APIController {
     public Flux<UserModel> getUsers() {
 
         return webClient
+                .build()
                 .get()
                 .uri(url +"/users")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -73,14 +66,16 @@ public class APIController {
 
     @CrossOrigin
     @DeleteMapping("/users/{id}")
-    public Mono<UserModel> deleteUser(@PathVariable long id) {
+    public UserModel deleteUser(@PathVariable long id) {
 
         return  webClient
+                .build()
                 .delete()
                 .uri(url + "/users/" + id)
                 .header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .bodyToMono(UserModel.class);
+                .bodyToMono(UserModel.class)
+                .block();
     }
 
 }
