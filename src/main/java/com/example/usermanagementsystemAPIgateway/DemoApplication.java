@@ -10,9 +10,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class DemoApplication {
 
 	@Bean
-	public WebClient getWebClient(){
-		return WebClient.create();
+	public WebClient.Builder getWebClient(){
+		return WebClient.builder();
 	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
 	}
