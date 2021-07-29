@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @RestController
 public class APIController {
 
-    @Value("${user-management-system.url}")
+    @Value("http://USER-MANAGEMENT-SERVICE")
     private String url;
 
     @Qualifier("getWebClient")
