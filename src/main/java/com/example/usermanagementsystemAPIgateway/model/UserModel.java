@@ -11,13 +11,6 @@ public class UserModel {
     public UserModel() {
     }
 
-    public UserModel(String firstName, String lastName, String creationTime, String emailAddress) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.creationTime = creationTime;
-        this.emailAddress = emailAddress;
-    }
-
     public UserModel(String firstName, String lastName, String emailAddress) {
         this.firstName = firstName;
         this.lastName = lastName;
